@@ -28,6 +28,8 @@ export async function mkRoundsController(fastify: FastifyInstance) {
       const newRoundStart = new Date(
         Date.now() + fastify.config.COOLDOWN_DURATION * 1000,
       );
+      newRoundStart.setMilliseconds(0);
+
       const newRoundEnd = new Date(newRoundStart);
       newRoundEnd.setSeconds(
         newRoundStart.getSeconds() + fastify.config.ROUND_DURATION,
