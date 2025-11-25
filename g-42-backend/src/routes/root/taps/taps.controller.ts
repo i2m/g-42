@@ -98,14 +98,14 @@ export async function mkTapsController(fastify: FastifyInstance) {
 
           const transaction = await sequelize.transaction();
           try {
-            await tap.reload({ transaction });
+            await tap.reload({ transaction, lock: transaction.LOCK.UPDATE });
             const scoreInc = tap.count !== 0 && tap.count % 10 === 0 ? 11 : 1;
             tap.score = tap.score + scoreInc;
             const newCount = tap.count + 1;
             tap.count = newCount;
             await tap.save({ transaction });
 
-            await round.reload({ transaction });
+            await round.reload({ transaction, lock: transaction.LOCK.UPDATE });
             round.totalScore = round.totalScore + scoreInc;
             await round.save({ transaction });
 
@@ -113,6 +113,7 @@ export async function mkTapsController(fastify: FastifyInstance) {
 
             return tap;
           } catch {
+            await transaction.rollback();
             return null;
           }
         }
