@@ -1,7 +1,7 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { login, logout, me, type User } from "./users.api";
+import { login, logout, me, type User } from "./Users.api";
 
 interface AuthContextState {
   isAuthenticated: boolean | undefined;
@@ -31,9 +31,10 @@ export function AuthContextProvider({
 
   const queryClient = useQueryClient();
 
-  const { data: meData, isFetching: isFetchingMe } = useQuery<User>({
+  const { data: meData, isLoading: isLoadingMe } = useQuery<User>({
     queryKey: ["me"],
     queryFn: me,
+    retry: false,
   });
 
   const { mutateAsync: loginAsync } = useMutation({
@@ -54,7 +55,7 @@ export function AuthContextProvider({
     },
   });
 
-  const isAuthenticated = isFetchingMe
+  const isAuthenticated = isLoadingMe
     ? undefined
     : meData !== undefined || user !== undefined;
 

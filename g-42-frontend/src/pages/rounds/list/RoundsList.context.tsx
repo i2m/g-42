@@ -1,33 +1,34 @@
 import { createContext, useContext } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createRound, getRounds, type Round } from "./Rounds.api";
+import { createRound, getRounds, type Round } from "../Rounds.api";
 
-interface RoundsContextState {
+interface RoundsListContextState {
   rounds: Round[];
+  isLoading: boolean;
   createNewRound: () => Promise<Round>;
 }
 
-const RoundsContext = createContext<RoundsContextState | null>(null);
+const RoundsListContext = createContext<RoundsListContextState | null>(null);
 
-export function useRoundsContext() {
-  const context = useContext(RoundsContext);
+export function useRoundsListContext() {
+  const context = useContext(RoundsListContext);
   if (context == null) {
     throw new Error(
-      "useRoundsContext must be used within an RoundsContext.Provider",
+      "useRoundsListContext must be used within an RoundsListContext.Provider",
     );
   }
   return context;
 }
 
-export function RoundsContextProvider({
+export function RoundsListContextProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const queryClient = useQueryClient();
 
-  const { data: rounds } = useQuery<Round[]>({
+  const { data: rounds, isLoading } = useQuery<Round[]>({
     queryKey: ["rounds"],
     queryFn: getRounds,
   });
@@ -40,13 +41,14 @@ export function RoundsContextProvider({
   });
 
   return (
-    <RoundsContext.Provider
+    <RoundsListContext.Provider
       value={{
         rounds: rounds || [],
+        isLoading,
         createNewRound: createAsync,
       }}
     >
       {children}
-    </RoundsContext.Provider>
+    </RoundsListContext.Provider>
   );
 }

@@ -1,16 +1,38 @@
 import { Navigate, Outlet } from "react-router";
-import { View } from "@adobe/react-spectrum";
+import { Flex } from "@adobe/react-spectrum";
+import { defaultTheme, Provider } from "@adobe/react-spectrum";
 
-import { useAuthContext } from "./users/AuthContext";
+import { useNavigate, useHref } from "react-router";
+
+import { useAuthContext } from "./users/Auth.context";
 import { Loading } from "../components/Loading";
 
 export function Root() {
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuthContext();
 
   return (
-    <View padding="size-400">
-      {isAuthenticated === undefined ? <Loading /> : <Outlet />}
-      {isAuthenticated === false && <Navigate to="/login" />}
-    </View>
+    <Provider
+      theme={defaultTheme}
+      router={{ navigate, useHref }}
+      breakpoints={{
+        S: 375,
+        M: 768,
+        L: 1024,
+        XL: 1280,
+        XXL: 1536,
+      }}
+    >
+      <Flex
+        direction="column"
+        alignItems="center"
+        justifyContent="center"
+        minHeight="100vh"
+      >
+        {isAuthenticated === undefined && <Loading />}
+        {isAuthenticated !== undefined && <Outlet />}
+        {isAuthenticated === false && <Navigate to="/login" />}
+      </Flex>
+    </Provider>
   );
 }

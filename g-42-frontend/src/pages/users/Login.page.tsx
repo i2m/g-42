@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import {
   Button,
   ButtonGroup,
@@ -6,9 +7,9 @@ import {
   TextField,
   View,
 } from "@adobe/react-spectrum";
-import { useCallback, useState } from "react";
-import { useAuthContext } from "./AuthContext";
 import { Navigate } from "react-router";
+
+import { useAuthContext } from "./Auth.context";
 
 export function Login() {
   const { login, isAuthenticated } = useAuthContext();
@@ -40,28 +41,50 @@ export function Login() {
   );
 
   return (
-    <Flex direction="column" alignContent="center" alignItems="center">
-      <View flexBasis="100%">
+    <Flex direction="column" justifyContent="center" alignItems="center">
+      <View flex>
         <h3 id="label-3">Login</h3>
+      </View>
+      <View flex>
         <Form
           onSubmit={onSubmit}
           isRequired
           necessityIndicator="label"
           validationErrors={errors}
-          minWidth="size-3600"
         >
-          <TextField name="username" label="Username" isRequired />
-          <TextField
-            name="password"
-            label="Password"
-            type="password"
-            isRequired
-          />
-          <ButtonGroup marginBottom="size-400" marginTop="size-200">
-            <Button type="submit" variant="primary">
-              Submit
-            </Button>
-          </ButtonGroup>
+          <Flex
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            rowGap="size-400"
+          >
+            <Flex
+              direction="column"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <TextField
+                name="username"
+                label="Username"
+                isRequired
+                width="size-3000"
+              />
+              <TextField
+                name="password"
+                label="Password"
+                type="password"
+                isRequired
+                width="size-3000"
+              />
+            </Flex>
+            <View flex>
+              <ButtonGroup>
+                <Button type="submit" variant="primary">
+                  Submit
+                </Button>
+              </ButtonGroup>
+            </View>
+          </Flex>
         </Form>
       </View>
       {isAuthenticated && <Navigate to="/" />}

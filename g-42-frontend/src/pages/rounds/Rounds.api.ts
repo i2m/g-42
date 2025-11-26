@@ -1,4 +1,4 @@
-import type { User } from "../users/users.api";
+import type { User } from "../users/Users.api";
 
 export interface Round {
   id: string;

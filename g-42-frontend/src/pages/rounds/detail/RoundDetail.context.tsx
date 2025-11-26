@@ -8,9 +8,10 @@ import {
   winner,
   type Round,
   type Tap,
-} from "./Rounds.api";
-import type { User } from "../users/users.api";
-import { roundStatus } from "./rounds.utils";
+} from "../Rounds.api";
+import type { User } from "../../users/Users.api";
+
+import { useRoundStatus } from "../Rounds.utils";
 
 interface RoundDetailContextState {
   round: Round | undefined;
@@ -50,10 +51,12 @@ export function RoundDetailContextProvider({
     queryFn: () => myScore(roundId),
   });
 
+  const { status } = useRoundStatus(round);
+
   const { data: user } = useQuery<User>({
     queryKey: ["winner", roundId],
     queryFn: () => winner(roundId),
-    enabled: round !== undefined && roundStatus(round) === "Ended",
+    enabled: status === "Ended",
   });
 
   const { mutateAsync: tapOnGooseAsync } = useMutation({
