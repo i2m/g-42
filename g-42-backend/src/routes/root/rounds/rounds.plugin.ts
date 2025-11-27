@@ -105,10 +105,7 @@ const roundsPlugin: FastifyPluginAsync = async (fastify) => {
           return reply.internalServerError("Unable to find winner");
         }
 
-        return reply.send({
-          username: winner.user.username,
-          score: winner.tap.score,
-        });
+        return reply.send(winner);
       },
     );
 };

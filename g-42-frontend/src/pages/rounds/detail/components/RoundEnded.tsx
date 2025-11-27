@@ -13,6 +13,8 @@ export function RoundEnded({
   myScore: Tap;
   winner: Winner;
 }) {
+  const winnerNames = winner.users.map((u) => u.username).join(", ");
+
   return (
     <View
       flex
@@ -37,7 +39,9 @@ export function RoundEnded({
           >
             <View>
               <Heading level={4}>Total score</Heading>
-              <Heading level={4}>Winner – {winner.username}</Heading>
+              <Heading level={4}>
+                Winner {winnerNames ? `– ${winnerNames}` : ""}
+              </Heading>
               <Heading level={4}>My score</Heading>
             </View>
             <View>

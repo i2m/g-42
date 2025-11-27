@@ -16,7 +16,7 @@ export interface Tap {
 }
 
 export interface Winner {
-  username: User["username"];
+  users: User[];
   score: Tap["score"];
 }
 

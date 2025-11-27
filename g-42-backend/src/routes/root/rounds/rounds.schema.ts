@@ -1,4 +1,5 @@
 import z from "zod";
+import { UserRole } from "../users/users.models";
 
 const round = z.object({
   id: z.string().nonempty(),
@@ -70,7 +71,13 @@ export const WinnerSchema = {
     }),
     response: {
       200: z.object({
-        username: z.string(),
+        users: z.array(
+          z.object({
+            id: z.string(),
+            username: z.string(),
+            role: z.enum(UserRole),
+          }),
+        ),
         score: z.number().nonnegative(),
       }),
     },

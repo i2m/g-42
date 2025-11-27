@@ -1,4 +1,5 @@
 import { FastifyInstance } from "fastify";
+import { Op } from "sequelize";
 
 import { initModels } from "./rounds.models";
 import type { Round, Tap } from "./rounds.models";
@@ -65,7 +66,7 @@ export async function mkRoundsController(fastify: FastifyInstance) {
 
     winner: async function (
       roundId: string,
-    ): Promise<{ user: User; tap: Tap } | null> {
+    ): Promise<{ users: User[]; score: number } | null> {
       const round = await Round.findByPk(roundId);
 
       // round with this id doesn't exist
@@ -81,22 +82,30 @@ export async function mkRoundsController(fastify: FastifyInstance) {
         return null;
       }
 
-      const tap = await Tap.findOne({
-        order: [["score", "DESC"]],
+      const maxScoreInRound: number | undefined = await Tap.max("score", {
         where: { roundId },
       });
 
-      // round with this id doesn't exist
-      if (!tap) {
-        return null;
+      if (!maxScoreInRound || maxScoreInRound === 0) {
+        return { users: [], score: 0 };
       }
 
-      const winner = await User.findByPk(tap.userId);
-      if (!winner) {
-        return null;
-      }
+      const winnerIds = (
+        await Tap.findAll({
+          where: {
+            [Op.and]: [{ roundId }, { score: maxScoreInRound }],
+          },
+        })
+      ).map((tap) => tap.userId);
 
-      return { user: winner, tap };
+      const winners = await User.findAll({
+        attributes: ["id", "username", "role"],
+        where: {
+          id: winnerIds,
+        },
+      });
+
+      return { users: winners, score: maxScoreInRound };
     },
 
     makeTap: async function (user: User, roundId: string): Promise<Tap | null> {
