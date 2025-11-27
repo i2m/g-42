@@ -31,7 +31,11 @@ export function AuthContextProvider({
 
   const queryClient = useQueryClient();
 
-  const { data: meData, isLoading: isLoadingMe } = useQuery<User>({
+  const {
+    data: meData,
+    isLoading: isLoadingMe,
+    isError,
+  } = useQuery<User>({
     queryKey: ["me"],
     queryFn: me,
     retry: false,
@@ -57,7 +61,7 @@ export function AuthContextProvider({
 
   const isAuthenticated = isLoadingMe
     ? undefined
-    : meData !== undefined || user !== undefined;
+    : !isError && (meData !== undefined || user !== undefined);
 
   return (
     <AuthContext.Provider

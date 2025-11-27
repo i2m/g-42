@@ -1,9 +1,12 @@
+import { useMemo } from "react";
 import {
   ActionButton,
   Breadcrumbs,
   Flex,
   Item,
   ListView,
+  Menu,
+  MenuTrigger,
   View,
 } from "@adobe/react-spectrum";
 
@@ -27,20 +30,32 @@ export function RoundsList() {
 }
 
 function RoundsListInner() {
-  const { user } = useAuthContext();
+  const { user, logout } = useAuthContext();
   const { rounds, isLoading, createNewRound } = useRoundsListContext();
+
+  const title = useMemo(() => {
+    return (
+      <Breadcrumbs>
+        <Item href="/">Rounds List</Item>
+      </Breadcrumbs>
+    );
+  }, []);
+
+  const userMenu = useMemo(() => {
+    return (
+      <MenuTrigger>
+        <ActionButton marginY="size-100">{user?.username}</ActionButton>
+        <Menu onAction={logout}>
+          <Item key="logout">Logout</Item>
+        </Menu>
+      </MenuTrigger>
+    );
+  }, [logout, user]);
 
   return (
     <Flex direction="column" flexGrow={1} width={{ M: "size-6000", S: "100%" }}>
       <View paddingX="size-200">
-        <Header
-          title={
-            <Breadcrumbs>
-              <Item href="/">Rounds List</Item>
-            </Breadcrumbs>
-          }
-          user={user}
-        />
+        <Header title={title} user={userMenu} />
       </View>
 
       <View paddingX="size-200" paddingBottom="size-200">
