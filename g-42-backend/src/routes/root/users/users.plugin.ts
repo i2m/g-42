@@ -23,7 +23,7 @@ const usersPlugin: FastifyPluginAsync = async (fastify) => {
       reply.setCookie(fastify.accessTokenCookieName, accessToken, {
         path: "/",
         httpOnly: true,
-        secure: true,
+        secure: "auto",
       });
 
       return reply.send({ ...userWithoutPassword, accessToken });
@@ -33,8 +33,12 @@ const usersPlugin: FastifyPluginAsync = async (fastify) => {
     "/me",
     { preHandler: [fastify.authenticate] },
     async (request, reply) => {
-      const user = request.user;
-      return reply.send(user);
+      const user = await UsersController.findUserById(request.user.id);
+      if (!user) {
+        return reply.unauthorized();
+      }
+      const { password: _p, ...userWithoutPassword } = user.get();
+      return reply.send(userWithoutPassword);
     },
   );
 

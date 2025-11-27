@@ -31,5 +31,9 @@ export async function mkUsersController(fastify: FastifyInstance) {
       }
       return null;
     },
+
+    findUserById: async function (userId: string): Promise<User | null> {
+      return await User.findByPk(userId);
+    },
   };
 }

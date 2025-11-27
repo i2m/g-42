@@ -2,9 +2,12 @@ import { FastifyPluginAsync } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 
 import {
+  MyScoreSchema,
   RoundCreateSchema,
   RoundFindByIdSchema,
   RoundListSchema,
+  TapSchema,
+  WinnerSchema,
 } from "./rounds.schema";
 import { mkRoundsController } from "./rounds.controller";
 
@@ -24,10 +27,12 @@ const roundsPlugin: FastifyPluginAsync = async (fastify) => {
   fastify
     .withTypeProvider<ZodTypeProvider>()
     .get(
-      "/find/:id",
+      "/find/:roundId",
       { ...RoundFindByIdSchema, preHandler: [fastify.authenticate] },
       async (request, reply) => {
-        const round = await RoundsController.findRoundById(request.params.id);
+        const round = await RoundsController.findRoundById(
+          request.params.roundId,
+        );
         if (!round) {
           return reply.notFound("Round not found");
         }
@@ -46,6 +51,64 @@ const roundsPlugin: FastifyPluginAsync = async (fastify) => {
           return reply.forbidden();
         }
         return reply.send(round);
+      },
+    );
+
+  fastify
+    .withTypeProvider<ZodTypeProvider>()
+    .post(
+      "/tap/:roundId",
+      { ...TapSchema, preHandler: [fastify.authenticate] },
+      async (request, reply) => {
+        const user = request.user;
+        const roundId = request.params.roundId;
+
+        const tap = await RoundsController.makeTap(user, roundId);
+
+        if (!tap) {
+          return reply.internalServerError("Unable to count the tap");
+        }
+
+        return reply.send(tap);
+      },
+    );
+
+  fastify
+    .withTypeProvider<ZodTypeProvider>()
+    .get(
+      "/myScore/:roundId",
+      { ...MyScoreSchema, preHandler: [fastify.authenticate] },
+      async (request, reply) => {
+        const user = request.user;
+        const roundId = request.params.roundId;
+
+        const tap = await RoundsController.myScore(user, roundId);
+
+        if (!tap) {
+          return reply.internalServerError("Unable to find score");
+        }
+
+        return reply.send(tap);
+      },
+    );
+
+  fastify
+    .withTypeProvider<ZodTypeProvider>()
+    .get(
+      "/winner/:roundId",
+      { ...WinnerSchema, preHandler: [fastify.authenticate] },
+      async (request, reply) => {
+        const roundId = request.params.roundId;
+        const winner = await RoundsController.winner(roundId);
+
+        if (!winner) {
+          return reply.internalServerError("Unable to find winner");
+        }
+
+        return reply.send({
+          username: winner.user.username,
+          score: winner.tap.score,
+        });
       },
     );
 };

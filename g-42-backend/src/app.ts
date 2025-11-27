@@ -2,7 +2,7 @@ import { join } from "node:path";
 import AutoLoad, { AutoloadPluginOptions } from "@fastify/autoload";
 import { FastifyPluginAsync, FastifyServerOptions } from "fastify";
 
-import rootPlugin from "./routes/root";
+import { rootPlugin, rootPluginWS } from "./routes/root";
 
 export interface AppOptions
   extends FastifyServerOptions,
@@ -23,6 +23,11 @@ const app: FastifyPluginAsync<AppOptions> = async (
 
   fastify.register(rootPlugin, {
     prefix: "/api/v1",
+    ...opts,
+  });
+
+  fastify.register(rootPluginWS, {
+    prefix: "/websocket",
     ...opts,
   });
 };

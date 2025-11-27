@@ -1,9 +1,11 @@
 import { FastifyPluginAsync } from "fastify";
 import usersPlugin from "./users/users.plugin";
 import roundsPlugin from "./rounds/rounds.plugin";
-import tapsPlugin from "./taps/taps.plugin";
+import roundsPluginWS from "./rounds/rounds.plugin-ws";
 
-const rootPlugin: FastifyPluginAsync = async (fastify): Promise<void> => {
+export const rootPlugin: FastifyPluginAsync = async (
+  fastify,
+): Promise<void> => {
   // just simple health check
   fastify.get("/", async function (_request, reply) {
     return reply.send("ok");
@@ -11,7 +13,10 @@ const rootPlugin: FastifyPluginAsync = async (fastify): Promise<void> => {
 
   fastify.register(usersPlugin, { prefix: "/users" });
   fastify.register(roundsPlugin, { prefix: "/rounds" });
-  fastify.register(tapsPlugin, { prefix: "/taps" });
 };
 
-export default rootPlugin;
+export const rootPluginWS: FastifyPluginAsync = async (
+  fastify,
+): Promise<void> => {
+  fastify.register(roundsPluginWS, { prefix: "/rounds" });
+};
