@@ -1,23 +1,24 @@
-import { createContext, useContext } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createContext, useCallback, useContext, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   findRoundById,
   myScore,
-  tap,
+  useRoundsWS,
   winner,
   type Round,
+  type RoundsIncomingMessage,
   type Tap,
+  type Winner,
 } from "../Rounds.api";
-import type { User } from "../../users/Users.api";
 
 import { useRoundStatus } from "../Rounds.utils";
 
 interface RoundDetailContextState {
   round: Round | undefined;
   myScore: Tap | undefined;
-  winner: User | undefined;
-  tapOnGoose: () => Promise<Tap>;
+  winner: Winner | undefined;
+  tapOnGoose: () => void;
 }
 
 const RoundDetailContext = createContext<RoundDetailContextState | null>(null);
@@ -53,18 +54,42 @@ export function RoundDetailContextProvider({
 
   const { status } = useRoundStatus(round);
 
-  const { data: user } = useQuery<User>({
+  useEffect(() => {
+    // refetch round data if status has changes
+    // when round ends, we need lastest updates of totalScore field
+    queryClient.invalidateQueries({ queryKey: ["rounds", roundId] });
+  }, [queryClient, roundId, status]);
+
+  const { data: user } = useQuery<Winner>({
     queryKey: ["winner", roundId],
     queryFn: () => winner(roundId),
     enabled: status === "Ended",
   });
 
-  const { mutateAsync: tapOnGooseAsync } = useMutation({
-    mutationFn: () => tap(roundId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["rounds", roundId] });
+  const handleRoundWSMessage = useCallback(
+    (message: RoundsIncomingMessage) => {
+      switch (message.type) {
+        case "Tap": {
+          queryClient.setQueriesData<Tap>(
+            { queryKey: ["taps", roundId] },
+            (oldTap) => ({ ...(oldTap || {}), ...message.data }),
+          );
+          break;
+        }
+        case "Error": {
+          console.warn(message.data.message);
+          break;
+        }
+      }
     },
-  });
+    [queryClient, roundId],
+  );
+
+  const { sendMessage } = useRoundsWS(handleRoundWSMessage);
+
+  const tapOnGoose = useCallback(() => {
+    sendMessage({ type: "MakeTap", data: { roundId } });
+  }, [roundId, sendMessage]);
 
   return (
     <RoundDetailContext.Provider
@@ -72,7 +97,7 @@ export function RoundDetailContextProvider({
         round,
         myScore: score,
         winner: user,
-        tapOnGoose: tapOnGooseAsync,
+        tapOnGoose,
       }}
     >
       {children}

@@ -2,8 +2,7 @@ import { Divider, Flex, Heading, View } from "@adobe/react-spectrum";
 
 import { Goose } from "./Goose";
 
-import type { Round, Tap } from "../../Rounds.api";
-import type { User } from "../../../users/Users.api";
+import type { Round, Tap, Winner } from "../../Rounds.api";
 
 export function RoundEnded({
   round,
@@ -12,7 +11,7 @@ export function RoundEnded({
 }: {
   round: Round;
   myScore: Tap;
-  winner: User;
+  winner: Winner;
 }) {
   return (
     <View
@@ -43,7 +42,7 @@ export function RoundEnded({
             </View>
             <View>
               <Heading level={4}>{round?.totalScore}</Heading>
-              <Heading level={4}>-</Heading>
+              <Heading level={4}>{winner.score}</Heading>
               <Heading level={4}>{myScore.score}</Heading>
             </View>
           </Flex>

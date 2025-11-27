@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { Flex, View } from "@adobe/react-spectrum";
+import { Breadcrumbs, Flex, Item, View } from "@adobe/react-spectrum";
 
 import { useAuthContext } from "../../users/Auth.context";
 import {
@@ -37,7 +37,15 @@ export function RoundDetailInner() {
   return (
     <Flex direction="column" flexGrow={1} width={{ M: "size-6000", S: "100%" }}>
       <View paddingX="size-200">
-        <Header title="Round" user={user} />
+        <Header
+          title={
+            <Breadcrumbs>
+              <Item href="/">Rounds List</Item>
+              <Item href="/rounds">Round</Item>
+            </Breadcrumbs>
+          }
+          user={user}
+        />
       </View>
 
       <View paddingX="size-200" paddingBottom="size-200">
