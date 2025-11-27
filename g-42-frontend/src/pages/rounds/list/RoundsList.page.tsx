@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import {
   ActionButton,
   Breadcrumbs,
@@ -9,6 +9,7 @@ import {
   MenuTrigger,
   View,
 } from "@adobe/react-spectrum";
+import { useNavigate } from "react-router";
 
 import { useAuthContext } from "../../users/Auth.context";
 import {
@@ -20,6 +21,7 @@ import { Header } from "../../../components/Header";
 import { Loading } from "../../../components/Loading";
 import { NoResults } from "./components/NoResults";
 import { RoundListItem } from "./components/RoundsListItem";
+import { ROUNDS_PATH } from "../../../App";
 
 export function RoundsList() {
   return (
@@ -32,6 +34,13 @@ export function RoundsList() {
 function RoundsListInner() {
   const { user, logout } = useAuthContext();
   const { rounds, isLoading, createNewRound } = useRoundsListContext();
+  const navigate = useNavigate();
+
+  const createNewRoundAndGo = useCallback(() => {
+    createNewRound().then((round) => {
+      navigate(`/${ROUNDS_PATH}/${round.id}`);
+    });
+  }, [createNewRound, navigate]);
 
   const title = useMemo(() => {
     return (
@@ -62,7 +71,9 @@ function RoundsListInner() {
         <Flex direction="column">
           {user?.role === "admin" && (
             <View flex paddingBottom="size-200">
-              <ActionButton onPress={createNewRound}>Create Round</ActionButton>
+              <ActionButton onPress={createNewRoundAndGo}>
+                Create Round
+              </ActionButton>
             </View>
           )}
 

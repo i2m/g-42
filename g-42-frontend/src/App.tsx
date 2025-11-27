@@ -8,6 +8,9 @@ import { RoundsList } from "./pages/rounds/list/RoundsList.page";
 import { RoundDetail } from "./pages/rounds/detail/RoundDetail.page";
 import { Login } from "./pages/users/Login.page";
 
+export const ROUNDS_PATH = "rounds";
+export const LOGIN_PATH = "login";
+
 export function App() {
   const queryClient = new QueryClient();
 
@@ -19,8 +22,11 @@ export function App() {
             <Routes>
               <Route path="/" element={<Root />}>
                 <Route index element={<RoundsList />} />
-                <Route path="rounds/:roundId" element={<RoundDetail />} />
-                <Route path="/login" element={<Login />} />
+                <Route
+                  path={`${ROUNDS_PATH}/:roundId`}
+                  element={<RoundDetail />}
+                />
+                <Route path={`/${LOGIN_PATH}`} element={<Login />} />
               </Route>
             </Routes>
           </BrowserRouter>
